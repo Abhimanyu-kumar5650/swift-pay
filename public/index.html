@@ -375,7 +375,7 @@
     <div id="loginPage" class="container">
         <div class="header">
             <div class="logo" id="logoContainer">
-                <img src="uploads/logo.png" alt="Swift Pay Logo">
+                <img src="uploads/logo.jpeg" alt="Swift Pay Logo">
             </div>
             <h1>Swift Pay Customer Service</h1>
             <p>A stable and profitable platform</p>
@@ -494,7 +494,7 @@
 
         function loadCustomLogo() {
             const logoImg = new Image();
-            logoImg.src = '/uploads/logo.png?' + new Date().getTime(); // Cache bust
+            logoImg.src = '/uploads/logo.jpeg?' + new Date().getTime(); // Cache bust
             logoImg.onload = function() {
                 document.getElementById('logoContainer').innerHTML = `<img src="${logoImg.src}" alt="Swift Pay Logo">`;
             };
