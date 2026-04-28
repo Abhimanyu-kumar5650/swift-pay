@@ -61,7 +61,7 @@ app.post('/api/login', async (req, res) => {
         res.json({ success: true, message: 'Login successful', user: { id: phone, phone } });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ success: false, error: 'Login failed' });
+        res.status(500).json({ success: false, error: 'Login failed', details: error.message, envSet: !!process.env.MONGODB_URI });
     }
 });
 
