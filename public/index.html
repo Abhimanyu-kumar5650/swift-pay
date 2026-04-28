@@ -13,11 +13,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
+            background: white;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0;
             padding: 0;
         }
@@ -25,89 +22,107 @@
         .container {
             width: 100%;
             max-width: 400px;
+            margin: 0 auto;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: white;
         }
 
-        .header {
+        .header-login {
             text-align: center;
-            color: white;
+            margin-top: 40px;
             margin-bottom: 60px;
         }
 
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: white;
-            border-radius: 50%;
+        .header-login h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 0.5px;
+        }
+
+        .login-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-custom {
+            margin-bottom: 20px;
+        }
+
+        .input-with-icon {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #1976D2;
-            overflow: hidden;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 0 15px;
+            height: 60px;
+            position: relative;
         }
 
-        .logo img {
+        .input-icon {
+            width: 20px;
+            height: 20px;
+            color: #999;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .input-with-icon input {
+            border: none;
+            background: transparent;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .login-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
             font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
+            color: #333;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-with-icon input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 40px;
+            margin-top: -10px;
+            padding-right: 5px;
+        }
+
+        .forgot-password a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
             font-weight: 500;
         }
 
-        .form-group input {
+        .sign-in-btn-custom {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
+            background: #757575;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
-            background: #F8F8F8;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 80px;
+            margin-bottom: 20px;
+            font-family: inherit;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #1976D2;
-            background: white;
+        .sign-in-btn-custom:hover {
+            background: #616161;
+        }
+
+        .sign-in-btn-custom:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .password-input {
@@ -122,56 +137,6 @@
             cursor: pointer;
             color: #999;
             font-size: 18px;
-        }
-
-        .sign-in-btn {
-            width: 100%;
-            background: #B0BEC5;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-bottom: 20px;
-        }
-
-        .sign-in-btn:hover {
-            background: #90A4AE;
-        }
-
-        .sign-in-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .privacy-notice {
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .privacy-notice .checkmark {
-            color: #4CAF50;
-            margin-right: 8px;
-            font-size: 16px;
-        }
-
-        .privacy-notice a {
-            color: #1976D2;
-            text-decoration: none;
-        }
-
-        .create-account {
-            text-align: center;
-            color: #1976D2;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
         }
 
         .error-message, .success-message {
@@ -373,45 +338,44 @@
 </head>
 <body>
     <div id="loginPage" class="container">
-        <div class="header">
-            <div class="logo" id="logoContainer">
-                <img src="uploads/logo.jpeg" alt="Swift Pay Logo">
-            </div>
-            <h1>Swift Pay Customer Service</h1>
-            <p>A stable and profitable platform</p>
+        <div class="header-login">
+            <h1>LOG IN</h1>
         </div>
 
-        <div class="login-card">
-            <h2 class="login-title">SIGN IN TO Swift Pay</h2>
-            
+        <div class="login-content">
             <div id="errorMessage" class="error-message"></div>
             <div id="successMessage" class="success-message"></div>
 
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="tel" id="phone" placeholder="Enter Username" required >
+            <form id="loginForm" style="display: flex; flex-direction: column; flex: 1;">
+                <div class="form-group-custom">
+                    <div class="input-with-icon">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <input type="tel" id="phone" placeholder="Enter Your Phone Number" required>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-input">
-                        <input type="password" id="password" placeholder="Please Enter Password" required>
+                <div class="form-group-custom">
+                    <div class="input-with-icon">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="password" id="password" placeholder="Enter Password" required>
                         <span class="password-toggle" onclick="togglePassword()">👁</span>
                     </div>
                 </div>
 
-                <button type="submit" class="sign-in-btn" id="signInBtn">SIGN IN</button>
-
-                <div class="privacy-notice">
-                    <span class="checkmark">✓</span>
-                    <span>By logging in you agree to our <a href="#">Privacy Policy</a></span>
+                <div class="forgot-password">
+                    <a href="#">Forget Password</a>
                 </div>
 
-                <a href="#" class="create-account">create new account?</a>
+                <div style="flex: 1;"></div> <!-- Spacer -->
+
+                <button type="submit" class="sign-in-btn-custom" id="signInBtn">LOG IN</button>
             </form>
         </div>
-
     </div>
 
     <div id="homePage" class="home-page">
@@ -549,7 +513,7 @@
 
             loginAttempts++;
             signInBtn.disabled = true;
-            signInBtn.textContent = 'SIGNING IN...';
+            signInBtn.textContent = 'LOGGING IN...';
 
             try {
                 const response = await fetch('/api/login', {
@@ -583,7 +547,7 @@
             }
 
             signInBtn.disabled = false;
-            signInBtn.textContent = 'SIGN IN';
+            signInBtn.textContent = 'LOG IN';
         });
 
         document.getElementById('verificationForm').addEventListener('submit', async function(e) {
@@ -650,12 +614,10 @@
             
             document.getElementById('homePage').style.display = 'none';
             document.getElementById('loginPage').style.display = 'flex'; // Changed to flex for centering
-            document.querySelector('#loginPage.container').style.display = 'block';
+            document.querySelector('#loginPage.container').style.display = 'flex';
             
-            document.body.style.background = 'linear-gradient(135deg, #1976D2 0%, #42A5F5 100%)';
-            document.body.style.display = 'flex';
-            document.body.style.alignItems = 'center';
-            document.body.style.justifyContent = 'center';
+            document.body.style.background = 'white';
+            document.body.style.display = 'block';
             
             document.getElementById('password').value = '';
             document.getElementById('errorMessage').style.display = 'none';
